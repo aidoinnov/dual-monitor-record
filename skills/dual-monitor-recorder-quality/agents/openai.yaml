@@ -1,0 +1,3 @@
+interface:
+  display_name: "Dual Monitor Recorder Quality"
+  short_description: "Run full recorder quality gates and reports"

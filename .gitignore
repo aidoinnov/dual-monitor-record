@@ -1,0 +1,9 @@
+.DS_Store
+.build/
+dist/
+node_modules/
+test-reports/
+App/AppIcon.iconset/
+package.json
+package-lock.json
+*.log

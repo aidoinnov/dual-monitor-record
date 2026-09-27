@@ -1,0 +1,83 @@
+import SwiftUI
+
+final class RecorderAppDelegate: NSObject, NSApplicationDelegate {
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        guard CommandLine.arguments.contains("--headless") else { return }
+        NSApp.setActivationPolicy(.accessory)
+        DispatchQueue.main.async {
+            NSApp.windows.forEach { $0.orderOut(nil) }
+        }
+    }
+}
+
+@main
+struct DualMonitorRecorderApp: App {
+    @NSApplicationDelegateAdaptor(RecorderAppDelegate.self) private var appDelegate
+    @StateObject private var recorder = DualDisplayRecorder()
+
+    var body: some Scene {
+        WindowGroup(id: "main") {
+            ContentView()
+                .environmentObject(recorder)
+                .frame(width: 520, height: 400)
+                .onOpenURL { url in
+                    switch url.host {
+                    case "start": if !recorder.isRecording { recorder.toggleRecording() }
+                    case "stop": if recorder.isRecording { recorder.stopRecording() }
+                    case "toggle": recorder.toggleRecording()
+                    case "settings": SettingsWindowPresenter.shared.show()
+                    case "latest": recorder.openSavedVideo()
+                    default: break
+                    }
+                }
+        }
+        .windowResizability(.contentSize)
+
+        MenuBarExtra {
+            MenuBarContent()
+                .environmentObject(recorder)
+        } label: {
+            Image(systemName: recorder.isRecording ? "record.circle.fill" : "rectangle.on.rectangle")
+        }
+        .menuBarExtraStyle(.menu)
+
+        Settings {
+            SettingsView()
+                .frame(width: 600)
+                .padding(24)
+        }
+    }
+}
+
+private struct MenuBarContent: View {
+    @EnvironmentObject private var recorder: DualDisplayRecorder
+    @Environment(\.openWindow) private var openWindow
+
+    var body: some View {
+        Button(recorder.isRecording ? "녹화 중지 (⌘F2)" : "녹화 시작 (⌘F2)") {
+            recorder.toggleRecording()
+        }
+        .disabled(recorder.isBusy)
+
+        if recorder.savedFileURL != nil {
+            Divider()
+            Button("영상 열기") { recorder.openSavedVideo() }
+            Button("저장 폴더 열기") { recorder.revealSavedVideo() }
+        }
+
+        Divider()
+        Button("창 열기") {
+            openWindow(id: "main")
+            NSApp.activate(ignoringOtherApps: true)
+        }
+        Button("설정…") {
+            SettingsWindowPresenter.shared.show()
+        }
+        .keyboardShortcut(",")
+        Divider()
+        Button("DualMonitorRecorder 종료") {
+            NSApp.terminate(nil)
+        }
+        .keyboardShortcut("q")
+    }
+}
