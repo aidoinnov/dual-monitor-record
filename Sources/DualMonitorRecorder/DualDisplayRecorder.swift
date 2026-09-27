@@ -59,6 +59,7 @@ final class DualDisplayRecorder: ObservableObject {
     }
 
     func chooseDestinationAndStart() {
+        DisplayOverlayPresenter.shared.hide()
         if !UserDefaults.standard.bool(forKey: RecorderSettings.askForLocationKey) {
             startAtConfiguredLocation()
             return

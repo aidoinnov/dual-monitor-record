@@ -19,7 +19,7 @@ struct DualMonitorRecorderApp: App {
         WindowGroup(id: "main") {
             ContentView()
                 .environmentObject(recorder)
-                .frame(width: 520, height: 400)
+                .frame(width: 520, height: 450)
                 .onOpenURL { url in
                     switch url.host {
                     case "start": if !recorder.isRecording { recorder.toggleRecording() }
@@ -70,6 +70,10 @@ private struct MenuBarContent: View {
             openWindow(id: "main")
             NSApp.activate(ignoringOtherApps: true)
         }
+        Button("녹화 모니터 표시") {
+            DisplayOverlayPresenter.shared.showSelectedDisplays()
+        }
+        .disabled(recorder.isRecording || recorder.isBusy)
         Button("설정…") {
             SettingsWindowPresenter.shared.show()
         }

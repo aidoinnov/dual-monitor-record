@@ -47,6 +47,12 @@ struct ContentView: View {
             }
             .buttonStyle(.link)
 
+            Button("녹화 모니터 표시", systemImage: "display.2") {
+                DisplayOverlayPresenter.shared.showSelectedDisplays()
+            }
+            .buttonStyle(.bordered)
+            .disabled(recorder.isRecording || recorder.isBusy)
+
             if recorder.savedFileURL != nil && !recorder.isRecording {
                 HStack(spacing: 12) {
                     Button("폴더 열기", systemImage: "folder") {
