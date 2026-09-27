@@ -14,6 +14,7 @@ enum RecorderSettings {
     static let askForLocationKey = "askForRecordingLocation"
     static let recordingFolderKey = "recordingFolderPath"
     static let displayPlacementsKey = "displayPlacements"
+    static let autoConvertForWindowsKey = "autoConvertForWindows"
 
     static var defaultFolder: URL {
         FileManager.default.urls(for: .moviesDirectory, in: .userDomainMask)[0]
@@ -43,6 +44,7 @@ struct SettingsView: View {
     @AppStorage(RecorderSettings.recordingFolderKey) private var recordingFolderPath = ""
     @State private var displays: [DisplayConfiguration] = []
     @State private var displayError: String?
+    @AppStorage(RecorderSettings.autoConvertForWindowsKey) private var autoConvertForWindows = false
 
     private var displayedFolder: URL {
         recordingFolderPath.isEmpty
@@ -53,6 +55,7 @@ struct SettingsView: View {
     var body: some View {
         Form {
             Toggle("녹화할 때마다 저장 위치 묻기", isOn: $askForLocation)
+            Toggle("녹화 완료 후 Windows용 MP4 자동 생성", isOn: $autoConvertForWindows)
 
             LabeledContent("기본 저장 위치") {
                 Text(displayedFolder.path)

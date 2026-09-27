@@ -9,6 +9,7 @@ const routes = {
   get_status: ["GET", "/v1/status"],
   open_latest: ["POST", "/v1/latest/open"],
   reveal_latest: ["POST", "/v1/latest/reveal"],
+  convert_latest_for_windows: ["POST", "/v1/latest/convert-windows"],
 };
 
 const tools = Object.keys(routes).map((name) => ({

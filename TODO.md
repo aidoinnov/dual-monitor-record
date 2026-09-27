@@ -122,8 +122,8 @@
 
 ## 완료된 품질 기준선
 
-- 최신 전체 보고서: `test-reports/20260927-161829/QUALITY_REPORT.md`
-- 결과: PASS 15 / FAIL 0 / SKIP 0
+- 최신 전체 보고서: `test-reports/20260927-190607/QUALITY_REPORT.md`
+- 결과: PASS 16 / FAIL 0 / SKIP 0
 - 검증 범위: 정식 서명, 헤드리스, 전역 단축키 등록, CLI 시작, HTTP 중지, WebSocket 상태 변화, MCP 도구 호출, 설정 배치 기반 3840×1080 HEVC/MOV
 - 실행 명령: `scripts/quality-check.sh`
 - Codex 스킬: `~/.codex/skills/dual-monitor-recorder-quality/SKILL.md`

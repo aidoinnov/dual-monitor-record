@@ -61,6 +61,16 @@ struct ContentView: View {
                     Button("영상 열기", systemImage: "play.rectangle") {
                         recorder.openSavedVideo()
                     }
+                    if recorder.windowsMP4URL == nil {
+                        Button("Windows MP4 변환", systemImage: "arrow.triangle.2.circlepath") {
+                            recorder.convertForWindows()
+                        }
+                        .disabled(recorder.isConverting)
+                    } else {
+                        Button("MP4 열기", systemImage: "play.rectangle.fill") {
+                            recorder.openWindowsVideo()
+                        }
+                    }
                 }
                 .buttonStyle(.bordered)
             }

@@ -22,6 +22,7 @@ dist/DualMonitorRecorder.app/Contents/MacOS/DualMonitorRecorder --headless
 | `toggle` | 현재 상태에 따라 시작 또는 중지 |
 | `open` | 마지막 영상을 기본 플레이어로 열기 |
 | `reveal` | 마지막 영상을 Finder에서 선택 |
+| `convert` | 마지막 MOV를 Windows용 H.264 MP4로 변환 |
 
 ```bash
 dist/bin/dualrec status
@@ -68,6 +69,7 @@ dist/bin/dualrec stop
 | POST | `/v1/recording/toggle` | 202 | 상태 전환 |
 | POST | `/v1/latest/open` | 200 | 마지막 영상 열기 |
 | POST | `/v1/latest/reveal` | 200 | Finder에서 마지막 영상 표시 |
+| POST | `/v1/latest/convert-windows` | 202 | 마지막 MOV의 H.264 MP4 변환 요청 |
 
 ```bash
 curl -sS http://127.0.0.1:17842/v1/status

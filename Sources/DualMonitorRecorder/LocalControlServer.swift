@@ -60,6 +60,9 @@ final class LocalControlServer: @unchecked Sendable {
                 case ("POST", "/v1/latest/reveal"):
                     recorder.revealSavedVideo()
                     result = (["ok": recorder.savedFileURL != nil], 200)
+                case ("POST", "/v1/latest/convert-windows"):
+                    recorder.convertForWindows()
+                    result = (["ok": recorder.savedFileURL != nil, "action": "convert-windows"], 202)
                 default:
                     result = (["error": "not_found", "path": path], 404)
                 }

@@ -64,6 +64,12 @@ private struct MenuBarContent: View {
             Divider()
             Button("영상 열기") { recorder.openSavedVideo() }
             Button("저장 폴더 열기") { recorder.revealSavedVideo() }
+            if recorder.windowsMP4URL == nil {
+                Button("Windows용 MP4 변환") { recorder.convertForWindows() }
+                    .disabled(recorder.isConverting)
+            } else {
+                Button("Windows용 MP4 열기") { recorder.openWindowsVideo() }
+            }
         }
 
         Divider()

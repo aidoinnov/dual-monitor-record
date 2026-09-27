@@ -42,6 +42,7 @@ scripts/quality-check.sh
 13. HEVC 코덱, 재생 시간과 프레임 수
 14. 설정 배치와 실제 영상 캔버스 좌표 일치
 15. 모든 모니터 배치 영역의 실제 픽셀 신호
+16. Windows용 H.264 MP4 변환과 해상도·재생 시간 일치
 
 실제 녹화를 의도적으로 제외할 때만 다음을 사용합니다.
 
@@ -75,4 +76,4 @@ test-reports/YYYYMMDD-HHMMSS/
 
 저장소의 `skills/dual-monitor-recorder-quality/`를 Codex skills 디렉터리에 설치하면 앱 변경, 회귀 조사, 릴리스 준비와 보고서 생성 절차를 재사용할 수 있습니다.
 
-현재 기준선은 PASS 15 / FAIL 0 / SKIP 0입니다. 앱 아이콘 번들, CLI 시작, HTTP 중지, WebSocket 상태 변화, MCP 도구 호출과 설정 배치 그대로의 HEVC/MOV 녹화까지 통과했습니다. 최신 보고서는 로컬 `test-reports/`에 생성됩니다.
+현재 기준선은 PASS 16 / FAIL 0 / SKIP 0입니다. 앱 아이콘 번들, CLI 시작, HTTP 중지, WebSocket 상태 변화, MCP 도구 호출, 설정 배치 그대로의 HEVC/MOV와 Windows용 H.264 MP4 변환까지 통과했습니다. 최신 보고서는 로컬 `test-reports/`에 생성됩니다.

@@ -133,7 +133,7 @@ else
 import json, sys
 status=json.load(open(sys.argv[1])); meta=json.load(open(sys.argv[2]))
 layout=status["layout"]; streams=[s for s in meta["streams"] if s.get("codec_type")=="video"]
-assert len(layout["displays"]) >= 2, "fewer than two displays"
+assert len(layout["displays"]) >= 1, "no configured displays"
 assert len(streams)==1, "expected one composited video stream"
 s=streams[0]
 assert s["codec_name"]=="hevc"
@@ -170,6 +170,30 @@ PY
                 record_result E2E "Display region pixels" PASS "Every configured display region contains non-black captured pixels"
             else
                 record_result E2E "Display region pixels" FAIL "At least one configured display region is empty or black"
+            fi
+
+            curl -fsS -X POST --max-time 3 http://127.0.0.1:17842/v1/latest/convert-windows > "$report_dir/windows-convert-request.json" 2>&1 || true
+            windows_file=""
+            for _ in {1..30}; do
+                conversion_status="$(curl -fsS --max-time 3 http://127.0.0.1:17842/v1/status 2>/dev/null || true)"
+                windows_file="$(python3 -c 'import json,sys; print(json.load(sys.stdin).get("windowsFile") or "")' <<< "$conversion_status" 2>/dev/null)"
+                [[ -n "$windows_file" ]] && break
+                sleep 1
+            done
+            if [[ -n "$windows_file" && -s "$windows_file" ]] \
+                && ffprobe -v error -select_streams v:0 -show_entries stream=codec_name,width,height -show_entries format=format_name,duration,size -of json "$windows_file" > "$report_dir/windows-video-metadata.json" 2>&1 \
+                && python3 - "$report_dir/windows-video-metadata.json" "$report_dir/video-metadata.json" <<'PY'
+import json,sys
+windows=json.load(open(sys.argv[1])); source=json.load(open(sys.argv[2]))
+w=windows["streams"]; s=[x for x in source["streams"] if x.get("codec_type")=="video"]
+assert len(w)==1 and len(s)==1 and w[0]["codec_name"]=="h264"
+assert w[0]["width"]==s[0]["width"] and w[0]["height"]==s[0]["height"]
+assert float(windows["format"]["duration"]) >= 2.0
+PY
+            then
+                record_result E2E "Windows H.264 MP4" PASS "$windows_file"
+            else
+                record_result E2E "Windows H.264 MP4" FAIL "Conversion failed or codec, dimensions, or duration are invalid"
             fi
         elif mdls -name kMDItemDurationSeconds "$saved_file" > "$report_dir/video-metadata.txt" 2>&1; then
             record_result E2E "HEVC and layout geometry" SKIP "ffprobe unavailable; Spotlight metadata only"

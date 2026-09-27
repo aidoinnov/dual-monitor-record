@@ -40,6 +40,7 @@ MCP 서버는 `integrations/mcp-server.mjs`이며 외부 npm 패키지가 필요
 | `toggle_recording` | 시작/중지 전환 |
 | `open_latest` | 마지막 영상 열기 |
 | `reveal_latest` | Finder에서 마지막 영상 선택 |
+| `convert_latest_for_windows` | 마지막 MOV를 Windows용 H.264 MP4로 변환 |
 
 모든 도구는 현재 인자를 받지 않습니다.
 

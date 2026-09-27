@@ -62,4 +62,4 @@ scripts/quality-check.sh
 
 앱을 헤드리스로 실행한 뒤 단위 테스트, 빌드, 서명, CLI/API/MCP/WebSocket, 실제 녹화와 MOV 무결성까지 검사합니다. 결과는 `test-reports/<실행시각>/`에 Markdown과 JSON으로 저장됩니다.
 
-현재 품질 기준은 **PASS 15 / FAIL 0 / SKIP 0**입니다. 실행할 때마다 `test-reports/<실행시각>/QUALITY_REPORT.md`가 새로 생성됩니다.
+현재 품질 기준은 **PASS 16 / FAIL 0 / SKIP 0**입니다. 실행할 때마다 `test-reports/<실행시각>/QUALITY_REPORT.md`가 새로 생성됩니다.

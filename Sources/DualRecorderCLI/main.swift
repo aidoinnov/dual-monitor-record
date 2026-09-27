@@ -1,10 +1,10 @@
 import Foundation
 
-let commands = ["start", "stop", "toggle", "status", "open", "reveal"]
+let commands = ["start", "stop", "toggle", "status", "open", "reveal", "convert"]
 let command = CommandLine.arguments.dropFirst().first ?? "help"
 
 guard commands.contains(command) else {
-    print("Usage: dualrec <start|stop|toggle|status|open|reveal>")
+    print("Usage: dualrec <start|stop|toggle|status|open|reveal|convert>")
     exit(command == "help" ? 0 : 2)
 }
 
@@ -14,7 +14,8 @@ let routes: [String: (String, String)] = [
     "toggle": ("POST", "/v1/recording/toggle"),
     "status": ("GET", "/v1/status"),
     "open": ("POST", "/v1/latest/open"),
-    "reveal": ("POST", "/v1/latest/reveal")
+    "reveal": ("POST", "/v1/latest/reveal"),
+    "convert": ("POST", "/v1/latest/convert-windows")
 ]
 
 let route = routes[command]!

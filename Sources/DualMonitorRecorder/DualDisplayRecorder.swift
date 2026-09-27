@@ -11,6 +11,8 @@ final class DualDisplayRecorder: ObservableObject {
     @Published private(set) var status = "연결된 두 모니터를 동시에 녹화합니다."
     @Published private(set) var elapsedText = "00:00:00"
     @Published private(set) var savedFileURL: URL?
+    @Published private(set) var windowsMP4URL: URL?
+    @Published private(set) var isConverting = false
 
     private var streams: [SCStream] = []
     private var streamOutputs: [DisplayStreamOutput] = []
@@ -54,7 +56,9 @@ final class DualDisplayRecorder: ObservableObject {
             "hotKeyRegistered": globalHotKey?.isRegistered ?? false,
             "headless": CommandLine.arguments.contains("--headless"),
             "menuBarEnabled": true,
-            "layout": lastLayoutPayload as Any
+            "layout": lastLayoutPayload as Any,
+            "converting": isConverting,
+            "windowsFile": windowsMP4URL?.path as Any
         ]
     }
 
@@ -72,6 +76,7 @@ final class DualDisplayRecorder: ObservableObject {
         guard panel.runModal() == .OK, let url = panel.url else { return }
 
         savedFileURL = nil
+        windowsMP4URL = nil
         isBusy = true
         status = "화면 기록 권한과 모니터를 확인하는 중…"
         Task { await startRecording(to: url) }
@@ -83,6 +88,7 @@ final class DualDisplayRecorder: ObservableObject {
             try FileManager.default.createDirectory(at: folder, withIntermediateDirectories: true)
             let url = folder.appendingPathComponent("dual-monitor-\(Self.timestamp()).mov")
             savedFileURL = nil
+            windowsMP4URL = nil
             isBusy = true
             status = "화면 기록 권한과 모니터를 확인하는 중…"
             Task { await startRecording(to: url) }
@@ -162,11 +168,43 @@ final class DualDisplayRecorder: ObservableObject {
             streamOutputs.removeAll()
             compositor = nil
             isRecording = false
-            isBusy = false
             elapsedText = "00:00:00"
             savedFileURL = outputURL
-            status = outputURL == nil ? "녹화를 저장하지 못했습니다." : "저장 완료: \(outputURL!.lastPathComponent)"
+            if let outputURL, UserDefaults.standard.bool(forKey: RecorderSettings.autoConvertForWindowsKey) {
+                status = "Windows용 MP4로 변환하는 중…"
+                isConverting = true
+                do {
+                    windowsMP4URL = try await WindowsVideoConverter.convert(outputURL)
+                    status = "MOV와 Windows용 MP4 저장 완료"
+                } catch {
+                    status = "MOV 저장 완료, MP4 변환 실패: \(error.localizedDescription)"
+                }
+                isConverting = false
+            } else {
+                status = outputURL == nil ? "녹화를 저장하지 못했습니다." : "저장 완료: \(outputURL!.lastPathComponent)"
+            }
+            isBusy = false
         }
+    }
+
+    func convertForWindows() {
+        guard let savedFileURL, !isConverting, !isRecording else { return }
+        isConverting = true
+        status = "Windows용 H.264 MP4로 변환하는 중…"
+        Task {
+            do {
+                windowsMP4URL = try await WindowsVideoConverter.convert(savedFileURL)
+                status = "Windows용 MP4 저장 완료: \(windowsMP4URL!.lastPathComponent)"
+            } catch {
+                status = "MP4 변환 실패: \(error.localizedDescription)"
+            }
+            isConverting = false
+        }
+    }
+
+    func openWindowsVideo() {
+        guard let windowsMP4URL else { return }
+        NSWorkspace.shared.open(windowsMP4URL)
     }
 
     func openSavedVideo() {
