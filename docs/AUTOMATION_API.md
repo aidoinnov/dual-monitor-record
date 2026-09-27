@@ -97,6 +97,7 @@ WebSocket은 상태 구독 전용이며 명령은 HTTP, CLI 또는 MCP로 전송
 | `dualrecorder://toggle` | 상태 전환 |
 | `dualrecorder://settings` | 설정 창 열기 |
 | `dualrecorder://latest` | 마지막 영상 열기 |
+| `dualrecorder://identify` | 선택된 녹화 모니터 번호 표시 |
 
 ```bash
 open 'dualrecorder://start'

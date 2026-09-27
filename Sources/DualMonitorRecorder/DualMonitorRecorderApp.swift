@@ -27,6 +27,7 @@ struct DualMonitorRecorderApp: App {
                     case "toggle": recorder.toggleRecording()
                     case "settings": SettingsWindowPresenter.shared.show()
                     case "latest": recorder.openSavedVideo()
+                    case "identify": if !recorder.isRecording { DisplayOverlayPresenter.shared.showSelectedDisplays() }
                     default: break
                     }
                 }

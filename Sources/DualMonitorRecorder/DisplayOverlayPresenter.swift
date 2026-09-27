@@ -5,7 +5,7 @@ import SwiftUI
 @MainActor
 final class DisplayOverlayPresenter {
     static let shared = DisplayOverlayPresenter()
-    private var windows: [NSWindow] = []
+    private var windows: [NSPanel] = []
     private var dismissTask: Task<Void, Never>?
 
     func showSelectedDisplays() {
@@ -20,14 +20,19 @@ final class DisplayOverlayPresenter {
                     : content.displays.filter { enabledIDs.contains($0.displayID) }
 
                 for (index, display) in selected.enumerated() {
-                    guard let screen = NSScreen.screens.first(where: {
+                    let matchedByID = NSScreen.screens.first(where: {
                         ($0.deviceDescription[NSDeviceDescriptionKey("NSScreenNumber")] as? NSNumber)?.uint32Value == display.displayID
-                    }) else { continue }
+                    })
+                    let matchedByFrame = NSScreen.screens.first(where: {
+                        Int($0.frame.origin.x) == Int(display.frame.origin.x)
+                            && Int($0.frame.origin.y) == Int(display.frame.origin.y)
+                    })
+                    guard let screen = matchedByID ?? matchedByFrame else { continue }
                     windows.append(makeWindow(screen: screen, number: index + 1, display: display))
                 }
 
                 dismissTask = Task {
-                    try? await Task.sleep(for: .seconds(3))
+                    try? await Task.sleep(for: .seconds(5))
                     guard !Task.isCancelled else { return }
                     await MainActor.run { self.hide() }
                 }
@@ -44,19 +49,23 @@ final class DisplayOverlayPresenter {
         windows.removeAll()
     }
 
-    private func makeWindow(screen: NSScreen, number: Int, display: SCDisplay) -> NSWindow {
-        let window = NSWindow(
+    private func makeWindow(screen: NSScreen, number: Int, display: SCDisplay) -> NSPanel {
+        let window = NSPanel(
             contentRect: screen.frame,
-            styleMask: [.borderless, .nonactivatingPanel],
+            styleMask: [.borderless, .nonactivatingPanel, .utilityWindow],
             backing: .buffered,
             defer: false,
             screen: screen
         )
+        window.setFrame(screen.frame, display: true)
         window.level = .screenSaver
         window.backgroundColor = .clear
         window.isOpaque = false
         window.hasShadow = false
         window.ignoresMouseEvents = true
+        window.isFloatingPanel = true
+        window.hidesOnDeactivate = false
+        window.becomesKeyOnlyIfNeeded = true
         window.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary, .stationary]
         window.contentView = NSHostingView(rootView: DisplayOverlayView(
             number: number,
