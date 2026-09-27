@@ -19,7 +19,7 @@ struct DualMonitorRecorderApp: App {
         WindowGroup(id: "main") {
             ContentView()
                 .environmentObject(recorder)
-                .frame(width: 520, height: 450)
+                .frame(width: 560, height: 570)
                 .onOpenURL { url in
                     switch url.host {
                     case "start": if !recorder.isRecording { recorder.toggleRecording() }

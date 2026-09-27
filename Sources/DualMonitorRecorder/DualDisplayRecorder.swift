@@ -13,6 +13,7 @@ final class DualDisplayRecorder: ObservableObject {
     @Published private(set) var savedFileURL: URL?
     @Published private(set) var windowsMP4URL: URL?
     @Published private(set) var isConverting = false
+    @Published private(set) var conversionProgress = ""
 
     private var streams: [SCStream] = []
     private var streamOutputs: [DisplayStreamOutput] = []
@@ -199,6 +200,39 @@ final class DualDisplayRecorder: ObservableObject {
                 status = "MP4 변환 실패: \(error.localizedDescription)"
             }
             isConverting = false
+            conversionProgress = ""
+        }
+    }
+
+    func convertDroppedFiles(_ urls: [URL]) {
+        let supported = urls.filter {
+            ["mov", "mp4", "m4v"].contains($0.pathExtension.lowercased())
+        }
+        guard !supported.isEmpty, !isConverting, !isRecording else {
+            if supported.isEmpty { status = "MOV, MP4 또는 M4V 파일을 넣어 주세요." }
+            return
+        }
+
+        isConverting = true
+        Task {
+            var succeeded = 0
+            var lastOutput: URL?
+            for (index, sourceURL) in supported.enumerated() {
+                conversionProgress = "\(index + 1) / \(supported.count)"
+                status = "Windows용 MP4 변환 중: \(sourceURL.lastPathComponent)"
+                let accessed = sourceURL.startAccessingSecurityScopedResource()
+                do {
+                    lastOutput = try await WindowsVideoConverter.convert(sourceURL)
+                    succeeded += 1
+                } catch {
+                    status = "\(sourceURL.lastPathComponent) 변환 실패: \(error.localizedDescription)"
+                }
+                if accessed { sourceURL.stopAccessingSecurityScopedResource() }
+            }
+            windowsMP4URL = lastOutput
+            isConverting = false
+            conversionProgress = ""
+            status = "Windows용 MP4 변환 완료: \(succeeded) / \(supported.count)개"
         }
     }
 

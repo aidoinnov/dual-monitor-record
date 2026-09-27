@@ -34,4 +34,15 @@ final class RecorderSettingsTests: XCTestCase {
         XCTAssertEqual(PixelAlignment.size(0), 2)
         XCTAssertEqual(PixelAlignment.size(3), 2)
     }
+
+    func testWindowsConversionOutputNeverOverwritesInput() {
+        XCTAssertEqual(
+            WindowsVideoConverter.outputURL(for: URL(fileURLWithPath: "/tmp/session.mov")).path,
+            "/tmp/session-windows.mp4"
+        )
+        XCTAssertEqual(
+            WindowsVideoConverter.outputURL(for: URL(fileURLWithPath: "/tmp/session-windows.mp4")).path,
+            "/tmp/session-windows-converted.mp4"
+        )
+    }
 }

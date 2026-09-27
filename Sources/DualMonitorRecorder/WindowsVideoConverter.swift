@@ -34,8 +34,7 @@ enum WindowsVideoConverter {
             throw ConversionError.unsupportedSize(width, height)
         }
 
-        let outputURL = sourceURL.deletingPathExtension()
-            .appendingPathExtension("windows.mp4")
+        let outputURL = outputURL(for: sourceURL)
         try? FileManager.default.removeItem(at: outputURL)
 
         let reader = try AVAssetReader(asset: asset)
@@ -92,5 +91,13 @@ enum WindowsVideoConverter {
             throw ConversionError.writingFailed(writer.error?.localizedDescription ?? "알 수 없는 오류")
         }
         return outputURL
+    }
+
+    static func outputURL(for sourceURL: URL) -> URL {
+        let baseName = sourceURL.deletingPathExtension().lastPathComponent
+        let suffix = baseName.hasSuffix("-windows") ? "-converted" : "-windows"
+        return sourceURL.deletingLastPathComponent()
+            .appendingPathComponent(baseName + suffix)
+            .appendingPathExtension("mp4")
     }
 }

@@ -1,7 +1,10 @@
 import SwiftUI
+import UniformTypeIdentifiers
 
 struct ContentView: View {
     @EnvironmentObject private var recorder: DualDisplayRecorder
+    @State private var showFileImporter = false
+    @State private var isDropTarget = false
 
     var body: some View {
         VStack(spacing: 22) {
@@ -75,11 +78,42 @@ struct ContentView: View {
                 .buttonStyle(.bordered)
             }
 
+            VStack(spacing: 7) {
+                Image(systemName: recorder.isConverting ? "arrow.triangle.2.circlepath" : "square.and.arrow.down")
+                    .font(.title2)
+                Text(recorder.isConverting
+                     ? "Windows용 MP4 변환 중 \(recorder.conversionProgress)"
+                     : "MOV · MP4 · M4V 파일을 여기에 드래그")
+                    .font(.callout.weight(.medium))
+                Button("파일 선택…") { showFileImporter = true }
+                    .buttonStyle(.link)
+                    .disabled(recorder.isConverting || recorder.isRecording)
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 10)
+            .background(isDropTarget ? Color.accentColor.opacity(0.18) : Color.secondary.opacity(0.07))
+            .overlay(
+                RoundedRectangle(cornerRadius: 10)
+                    .stroke(isDropTarget ? Color.accentColor : Color.secondary.opacity(0.45), style: StrokeStyle(lineWidth: 1.5, dash: [6]))
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .dropDestination(for: URL.self) { urls, _ in
+                recorder.convertDroppedFiles(urls)
+                return !urls.isEmpty
+            } isTargeted: { isDropTarget = $0 }
+
             Text("설정에서 선택하고 배치한 모니터들이 하나의 MOV 파일로 저장됩니다.")
                 .font(.caption)
                 .foregroundStyle(.tertiary)
         }
         .padding(30)
         .onAppear { recorder.startRemoteControl() }
+        .fileImporter(
+            isPresented: $showFileImporter,
+            allowedContentTypes: [.movie, .mpeg4Movie, .quickTimeMovie],
+            allowsMultipleSelection: true
+        ) { result in
+            if case .success(let urls) = result { recorder.convertDroppedFiles(urls) }
+        }
     }
 }
